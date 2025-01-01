@@ -38,3 +38,57 @@ Scenario: Create a Product
     And I should see "True" in the "Available" dropdown
     And I should see "Tools" in the "Category" dropdown
     And I should see "34.95" in the "Price" field
+
+Scenario: List All Products
+    When I visit the "Home Page"
+    Then I should see "Hat"
+    And I should see "Shoes"
+    And I should see "Big Mac"
+    And I should see "Sheets"
+
+Scenario: Update a Product
+    When I visit the "Home Page"
+    And I set the "Name" to "Hammer"
+    And I set the "Description" to "Claw hammer"
+    And I select "True" in the "Available" dropdown
+    And I select "Tools" in the "Category" dropdown
+    And I set the "Price" to "34.95"
+    And I press the "Create" button
+    Then I should see the message "Success"
+    When I change the "Name" to "Sledgehammer"
+    And I change the "Description" to "Heavy-duty hammer"
+    And I set the "Price" to "50.00"
+    And I press the "Update" button
+    Then I should see the message "Success"
+    And I should see "Sledgehammer" in the "Name" field
+    And I should see "Heavy-duty hammer" in the "Description" field
+    And I should see "50.00" in the "Price" field
+
+Scenario: Delete a Product
+    When I visit the "Home Page"
+    And I press the "Delete" button for "Hammer"
+    Then I should see the message "Product Deleted"
+    And I should not see "Hammer" in the product list
+
+Scenario: Search a Product by Name
+    When I visit the "Home Page"
+    And I set the "Search" field to "Shoes"
+    And I press the "Search" button
+    Then I should see "Shoes" in the product list
+    And I should not see "Hat" in the product list
+
+Scenario: Search a Product by Availability
+    When I visit the "Home Page"
+    And I select "True" in the "Available" dropdown
+    And I press the "Search" button
+    Then I should see "Hat"
+    And I should see "Big Mac"
+    And I should see "Sheets"
+    And I should not see "Shoes"
+
+Scenario: Search a Product by Category
+    When I visit the "Home Page"
+    And I select "FOOD" in the "Category" dropdown
+    And I press the "Search" button
+    Then I should see "Big Mac" in the product list
+    And I should not see "Hat" in the product list
