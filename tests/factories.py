@@ -31,4 +31,21 @@ class ProductFactory(factory.Factory):
         model = Product
 
     id = factory.Sequence(lambda n: n)
-   ## Add code to create Fake Products 
+    name = factory.Faker('word')  # Generates a random product name
+    description = factory.Faker('sentence')  # Generates a random product description
+    price = FuzzyDecimal(1.0, 1000.0, 2)  # Generates a random price between 1.0 and 1000.0 with 2 decimal places
+    available = FuzzyChoice([True, False])  # Randomly choose True or False for availability
+    category = factory.SubFactory('tests.factories.CategoryFactory')  # Generates a random Category using CategoryFactory
+
+
+class CategoryFactory(factory.Factory):
+    """Creates fake categories for testing"""
+
+    class Meta:
+        """Maps factory to data model"""
+
+        model = Category
+
+    name = factory.Faker('word')  # Generates a random category name
+
+
