@@ -90,8 +90,41 @@ class TestProductModel(unittest.TestCase):
 
         # Delete product
         Product.delete(product.id)
+
+        # Check if product was deleted
         deleted_product = Product.find(product.id)
         self.assertIsNone(deleted_product)
+
+    def test_list_all_products(self):
+        """Test listing all products"""
+        # Create multiple products
+        product_data_1 = {
+            "name": "Hat",
+            "description": "A red fedora",
+            "price": 59.95,
+            "available": True,
+            "category": "Cloths"
+        }
+        product_data_2 = {
+            "name": "Shoes",
+            "description": "Blue shoes",
+            "price": 120.50,
+            "available": False,
+            "category": "Cloths"
+        }
+
+        product1 = Product(**product_data_1)
+        product2 = Product(**product_data_2)
+
+        db.session.add(product1)
+        db.session.add(product2)
+        db.session.commit()
+
+        # List all products
+        products = Product.all()
+        self.assertEqual(len(products), 2)
+        self.assertEqual(products[0].name, "Hat")
+        self.assertEqual(products[1].name, "Shoes")
 
     def test_find_product_by_category(self):
         """Test finding products by category"""
@@ -151,4 +184,5 @@ class TestProductModel(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
 
