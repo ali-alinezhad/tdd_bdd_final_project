@@ -1,52 +1,31 @@
-######################################################################
-# Copyright 2016, 2023 John J. Rofrano. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# https://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-######################################################################
-
-"""
-Product Steps
-
-Steps file for products.feature
-
-For information on Waiting until elements are present in the HTML see:
-    https://selenium-python.readthedocs.io/waits.html
-"""
-import requests
 from behave import given
+from service.models import db, Product
+from service import app
 
-# HTTP Return Codes
-HTTP_200_OK = 200
-HTTP_201_CREATED = 201
-HTTP_204_NO_CONTENT = 204
+@app.before_all
+def setup():
+    """Create the necessary tables before tests are run."""
+    db.create_all()
 
-@given('the following products')
+@app.after_all
+def teardown():
+    """Clean up after tests are done."""
+    db.session.remove()
+    db.drop_all()
+
+@given('the following products exist')
 def step_impl(context):
-    """ Delete all Products and load new ones """
-    #
-    # List all of the products and delete them one by one
-    #
-    rest_endpoint = f"{context.base_url}/products"
-    context.resp = requests.get(rest_endpoint)
-    assert(context.resp.status_code == HTTP_200_OK)
-    for product in context.resp.json():
-        context.resp = requests.delete(f"{rest_endpoint}/{product['id']}")
-        assert(context.resp.status_code == HTTP_204_NO_CONTENT)
-
-    #
-    # load the database with new products
-    #
+    """Load the products into the database from the scenario's context table."""
     for row in context.table:
-        #
-        # ADD YOUR CODE HERE TO CREATE PRODUCTS VIA THE REST API
-        #
+        product_data = {
+            "name": row["Name"],
+            "description": row["Description"],
+            "price": float(row["Price"]),
+            "available": row["Available"] == "True",  # Ensure boolean comparison
+            "category": row["Category"]
+        }
+        
+        product = Product(**product_data)
+        db.session.add(product)
+    db.session.commit()
+
